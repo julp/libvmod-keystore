@@ -1,0 +1,63 @@
+cmake_minimum_required(VERSION 2.8.3)
+
+project(libvmod-keystore C)
+
+# cmake . -DVARNISHSRC:PATH=$HOME/Downloads/varnish-4.0.0-tp2/ -DWITH_REDIS:BOOL=OFF -DWITH_MEMCACHED:BOOL=OFF
+
+set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR})
+include(VarnishMOD)
+
+option(WITH_REDIS "Embed (statically linked) redis driver if hiredis library is found" ON)
+option(WITH_MEMCACHED "Embed (statically linked) memcached driver if libmemcached library is found" ON)
+
+set(STATIC_DRIVERS "")
+set(ADDITIONNAL_LIBRARIES "")
+macro(declare_driver)
+    cmake_parse_arguments(DRIVER "" "NAME" "ADDITIONNAL_INCLUDE_DIRECTORIES;ADDITIONNAL_LIBRARIES;SOURCES" ${ARGN})
+
+    set(DRIVER_INCLUDE_DIRECTORIES )
+    list(APPEND DRIVER_INCLUDE_DIRECTORIES "${VARNISHSRC}/include")
+    list(APPEND DRIVER_INCLUDE_DIRECTORIES ${VARNISHAPI_VMODINCLUDEDIR})
+    list(APPEND DRIVER_INCLUDE_DIRECTORIES ${DRIVER_ADDITIONNAL_INCLUDE_DIRECTORIES})
+    list(APPEND DRIVER_INCLUDE_DIRECTORIES ${PROJECT_SOURCE_DIR})
+    list(APPEND DRIVER_INCLUDE_DIRECTORIES "${PROJECT_SOURCE_DIR}/src")
+#     include_directories(
+#         "${VARNISHSRC}/include"
+#         ${VARNISHAPI_VMODINCLUDEDIR}
+#         ${DRIVER_ADDITIONNAL_INCLUDE_DIRECTORIES}
+#         "${PROJECT_SOURCE_DIR}/src"
+#     )
+    add_library(${DRIVER_NAME} OBJECT EXCLUDE_FROM_ALL ${DRIVER_SOURCES})
+    set_target_properties(${DRIVER_NAME} PROPERTIES INCLUDE_DIRECTORIES "${DRIVER_INCLUDE_DIRECTORIES}")
+#     target_link_libraries(${DRIVER_NAME} ${DRIVER_ADDITIONNAL_LIBRARIES})
+    set(STATIC_DRIVERS "${STATIC_DRIVERS};${DRIVER_NAME}" PARENT_SCOPE)
+    set(ADDITIONNAL_LIBRARIES "${ADDITIONNAL_LIBRARIES};${DRIVER_ADDITIONNAL_LIBRARIES}" PARENT_SCOPE)
+endmacro(declare_driver)
+
+if(WITH_REDIS OR WITH_MEMCACHED)
+    add_subdirectory(drivers)
+endif(WITH_REDIS OR WITH_MEMCACHED)
+
+# configure_file(
+#     "config.h.in"
+#     "config.h"
+#     @ONLY
+# )
+
+message("STATIC_DRIVERS = ${STATIC_DRIVERS}")
+
+set(KEYSTORE_SOURCES )
+list(APPEND KEYSTORE_SOURCES src/vmod_keystore.c)
+foreach(DRIVER_NAME ${STATIC_DRIVERS})
+    list(APPEND KEYSTORE_SOURCES "\$<TARGET_OBJECTS:${DRIVER_NAME}>")
+    string(TOUPPER ${DRIVER_NAME} DRIVER_UPPER_NAME)
+    add_definitions("-D${DRIVER_UPPER_NAME}_STATIC_DRIVER=1")
+endforeach(DRIVER_NAME)
+get_directory_property(CURRENT_DEFINITIONS COMPILE_DEFINITIONS)
+declare_vmod(
+    INSTALL
+    NAME keystore
+    VCC src/vmod_keystore.vcc
+    SOURCES ${KEYSTORE_SOURCES}
+    ADDITIONNAL_LIBRARIES ${ADDITIONNAL_LIBRARIES}
+)
