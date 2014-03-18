@@ -99,13 +99,13 @@ static VCL_BOOL vmod_key_store_memcached_delete(void *c, VCL_STRING key)
     return MEMCACHED_SUCCESS == rc;
 }
 
-static VCL_BOOL vmod_key_store_memcached_expire(void *c, VCL_STRING key, VCL_DURATION d)
+static VCL_VOID vmod_key_store_memcached_expire(void *c, VCL_STRING key, VCL_DURATION d)
 {
     memcached_return_t rc;
 
     rc = memcached_touch((memcached_st *) c, key, strlen(key), (time_t) (int) d);
 
-    return MEMCACHED_SUCCESS == rc;
+//     return MEMCACHED_SUCCESS == rc;
 }
 
 static int _memcached_do_in_de_crement(memcached_return_t (*fn)(memcached_st *, const char *, size_t, uint32_t, uint64_t *), void *c, VCL_STRING key)

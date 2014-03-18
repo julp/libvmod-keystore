@@ -228,13 +228,13 @@ VCL_BOOL vmod_driver_delete(const struct vrt_ctx *ctx, struct vmod_driver *p, VC
     return p->driver->delete(p->private, key);
 }
 
-VCL_BOOL vmod_driver_expire(const struct vrt_ctx *ctx, struct vmod_driver *p, VCL_STRING key, VCL_DURATION duration)
+VCL_VOID vmod_driver_expire(const struct vrt_ctx *ctx, struct vmod_driver *p, VCL_STRING key, VCL_DURATION duration)
 {
     CHECK_OBJ_NOTNULL(ctx, VRT_CTX_MAGIC);
     CHECK_OBJ_NOTNULL(p, VMOD_STORE_OBJ_MAGIC);
     AN(p->driver->expire);
 
-    return p->driver->expire(p->private, key, duration);
+    p->driver->expire(p->private, key, duration);
 }
 
 VCL_INT vmod_driver_increment(const struct vrt_ctx *ctx, struct vmod_driver *p, VCL_STRING key)
@@ -252,7 +252,7 @@ VCL_INT vmod_driver_decrement(const struct vrt_ctx *ctx, struct vmod_driver *p, 
     CHECK_OBJ_NOTNULL(p, VMOD_STORE_OBJ_MAGIC);
     AN(p->driver->decrement);
 
-    return p->driver->increment(p->private, key);
+    return p->driver->decrement(p->private, key);
 }
 
 int init_function(struct vmod_priv *priv, const struct VCL_conf *cfg)

@@ -57,7 +57,7 @@ new <variable name> = keystore.driver('<driver name>:host=<IP address or hostnam
 * `VOID set(STRING key, STRING value)`: add or replace (overwrites) the *value* associated to *key*
 * `BOOL exists(STRING key)`: does *key* exist?
 * `BOOL delete(STRING key)`: delete *key*
-* `BOOL expire(STRING key, DURATION ttl)`: set expiration of the given *key* (keys are inserted as persitent with 0 as TTL ; use 30s as value of *ttl*, for the *key* to expire in 30 seconds)
+* `VOID expire(STRING key, DURATION ttl)`: set expiration of the given *key* (keys are inserted as persitent with 0 as TTL ; use 30s as value of *ttl*, for the *key* to expire in 30 seconds)
 * `INT increment(STRING key)`: return value associated to *key* after incrementing it (of 1)
 * `INT decrement(STRING key)`: return value associated to *key* after decrementing it (of 1)
 
@@ -66,3 +66,40 @@ new <variable name> = keystore.driver('<driver name>:host=<IP address or hostnam
 * varnish is strongly typed: methods are planned to get/return a given type, nothing else
 * varnish has no iterator and/or a kind of foreach construct to work on non-scalar type (like arrays, sets, etc)
 * varnish has no null or nil value
+
+# Examples
+
+## Prevent brute-force on http authentication
+
+```
+import std;
+
+sub vcl_init {
+    new ipstore = keystore.driver("redis:host=localhost;port=6379");
+}
+
+sub vcl_recv {
+    if (std.integer(ipstore.get("" + client.ip), 0) > 5) {
+        return(error(403));
+    }
+    # ...
+}
+
+sub vcl_backend_response {
+    # ...
+    if (401 == beresp.status) {
+        if (ipstore.increment("" + client.ip) > 5) {
+            ipstore.expire("" + client.ip, 1h);
+            return(error(403)); # pas autorisé dans vcl_backend_response
+        }
+        ipstore.expire("" + client.ip, 1h);
+    }
+    # ...
+}
+```
+
+## Example n°2
+
+```
+code
+```

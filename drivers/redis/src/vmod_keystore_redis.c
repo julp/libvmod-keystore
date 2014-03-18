@@ -91,11 +91,10 @@ static int _redis_do_string_command(struct ws *ws, void *c, int *output_type, ch
         AN(r);
         switch (*output_type = r->type) {
             case REDIS_REPLY_NIL:
-//                 *output_value = WS_Copy(ws, "", 1);
                 *output_value = NULL;
                 break;
             case REDIS_REPLY_INTEGER:
-                //*output_value = WS_Printf(ws, "%ll", r->integer);
+                //*output_value = WS_Printf(ws, "%lld", r->integer); // TODO: WS_Printf was introduced lately (after 4.0.0-tp2)
                 *output_value = NULL;
                 break;
             case REDIS_REPLY_ERROR:
@@ -107,7 +106,6 @@ static int _redis_do_string_command(struct ws *ws, void *c, int *output_type, ch
                 break;
             default:
                *output_value = NULL;
-//                *output_value = WS_Copy(ws, "<not a string>", -1);
                 break;
         }
     } else {
@@ -221,14 +219,14 @@ static VCL_BOOL vmod_key_store_redis_delete(void *c, VCL_STRING key)
     return REDIS_REPLY_INTEGER == otype && 1 == ovalue;
 }
 
-static VCL_BOOL vmod_key_store_redis_expire(void *c, VCL_STRING key, VCL_DURATION d)
+static VCL_VOID vmod_key_store_redis_expire(void *c, VCL_STRING key, VCL_DURATION d)
 {
     int ret, otype, ovalue;
 
     ret = _redis_do_int_command(c, &otype, &ovalue, "EXPIRE %s %.f", key, d);
     AN(ret);
 
-    return REDIS_REPLY_INTEGER == otype && 1 == ovalue;
+//     return REDIS_REPLY_INTEGER == otype && 1 == ovalue;
 }
 
 static VCL_INT vmod_key_store_redis_increment(void *c, VCL_STRING key)
