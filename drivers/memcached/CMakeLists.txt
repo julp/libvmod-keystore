@@ -6,6 +6,7 @@ find_package(libMemcached REQUIRED)
 if(PROJECT_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
     include(VarnishMOD)
 
+    get_filename_component(REAL_PROJECT_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../src" REALPATH)
     add_definitions(-DMEMCACHED_SHARED_DRIVER=1)
     declare_vmod(
         INSTALL
@@ -13,7 +14,7 @@ if(PROJECT_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
         VCC src/vmod_keystore_memcached.vcc
         SOURCES src/vmod_keystore_memcached.c
         ADDITIONNAL_LIBRARIES ${LIBMEMCACHED_LIBRARIES} "${VARNISHAPI_VMODDIR}/libvmod_keystore.so"
-        ADDITIONNAL_INCLUDE_DIRECTORIES ${LIBMEMCACHED_INCLUDE_DIRS} "../../src"
+        ADDITIONNAL_INCLUDE_DIRECTORIES ${LIBMEMCACHED_INCLUDE_DIRS} ${REAL_PROJECT_SOURCE_DIR}
     )
 else(PROJECT_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
     declare_driver(

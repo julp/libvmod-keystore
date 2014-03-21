@@ -85,12 +85,12 @@ sub vcl_recv {
     # ...
 }
 
-sub vcl_backend_response {
+sub vcl_backend_response { # TODO: ipstore is not valid/inconsistent in vcl_backend_response?
     # ...
     if (401 == beresp.status) {
         if (ipstore.increment("" + client.ip) > 5) {
             ipstore.expire("" + client.ip, 1h);
-            return(error(403)); # pas autorisé dans vcl_backend_response
+            return(error(403)); # TODO: not allowed in vcl_backend_response (current doc of varnish says the contrary)
         }
         ipstore.expire("" + client.ip, 1h);
     }

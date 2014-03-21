@@ -6,6 +6,7 @@ find_package(Hiredis REQUIRED)
 if(PROJECT_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
     include(VarnishMOD)
 
+    get_filename_component(REAL_PROJECT_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../src" REALPATH)
     add_definitions(-DREDIS_SHARED_DRIVER=1)
     declare_vmod(
         INSTALL
@@ -13,7 +14,7 @@ if(PROJECT_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
         VCC src/vmod_keystore_redis.vcc
         SOURCES src/vmod_keystore_redis.c
         ADDITIONNAL_LIBRARIES ${HIREDIS_LIBRARIES} "${VARNISHAPI_VMODDIR}/libvmod_keystore.so"
-        ADDITIONNAL_INCLUDE_DIRECTORIES ${HIREDIS_INCLUDE_DIRS} "../../src"
+        ADDITIONNAL_INCLUDE_DIRECTORIES ${HIREDIS_INCLUDE_DIRS} ${REAL_PROJECT_SOURCE_DIR}
     )
 else(PROJECT_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
     declare_driver(
