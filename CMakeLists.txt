@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8.3)
 
 project(libvmod-keystore C)
 
-# cmake . -DVARNISHSRC:PATH=$HOME/Downloads/varnish-4.0.0-tp2/ -DWITH_REDIS:BOOL=OFF -DWITH_MEMCACHED:BOOL=OFF
+# cmake . -DVARNISHSRC:PATH=$HOME/Downloads/varnish-4.0.0-beta1/ -DWITH_REDIS:BOOL=OFF -DWITH_MEMCACHED:BOOL=OFF
 
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR})
 include(VarnishMOD)

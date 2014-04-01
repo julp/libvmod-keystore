@@ -80,26 +80,20 @@ sub vcl_init {
 
 sub vcl_recv {
     if (std.integer(ipstore.get("" + client.ip), 0) > 5) {
-        return(error(403));
+        return(synth(403));
     }
     # ...
 }
 
-sub vcl_backend_response { # TODO: ipstore is not valid/inconsistent in vcl_backend_response?
+sub vcl_backend_response { # TODO: ipstore is not valid/consistent in vcl_backend_response?
     # ...
     if (401 == beresp.status) {
-        if (ipstore.increment("" + client.ip) > 5) {
+        if (ipstore.increment("" + client.ip) > 5) { # TODO: client.ip is not available in vcl_backend_response anymore
             ipstore.expire("" + client.ip, 1h);
-            return(error(403)); # TODO: not allowed in vcl_backend_response (current doc of varnish says the contrary)
+            return(synth(403)); # TODO: not allowed in vcl_backend_response (current doc of varnish says the contrary)
         }
         ipstore.expire("" + client.ip, 1h);
     }
     # ...
 }
-```
-
-## Example n°2
-
-```
-code
 ```
