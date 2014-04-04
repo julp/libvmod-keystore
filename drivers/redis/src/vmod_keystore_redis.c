@@ -94,8 +94,7 @@ static int _redis_do_string_command(struct ws *ws, void *c, int *output_type, ch
                 *output_value = NULL;
                 break;
             case REDIS_REPLY_INTEGER:
-                //*output_value = WS_Printf(ws, "%lld", r->integer); // TODO: WS_Printf was introduced lately (after 4.0.0-tp2)
-                *output_value = NULL;
+                *output_value = WS_Printf(ws, "%lld", r->integer); /* NOTE: WS_Printf was introduced lately (after 4.0.0-tp2) */
                 break;
             case REDIS_REPLY_ERROR:
                 ret = 0;
