@@ -25,7 +25,7 @@ In top of your Varnish configuration, add:
 import keystore;
 ```
 
-## With drivers out of the box (as separated vmods)
+## With drivers as separate vmods
 
 First build vmod_keystore alone:
 ```
@@ -73,6 +73,8 @@ new <variable name> = keystore.driver('<driver name>:host=<IP address or hostnam
 
 ```
 import std;
+import keystore;
+#import keystore_redis; # if compiled as a separate VMOD
 
 sub vcl_init {
     new ipstore = keystore.driver("redis:host=localhost;port=6379");
@@ -85,12 +87,12 @@ sub vcl_recv {
     # ...
 }
 
-sub vcl_backend_response { # TODO: ipstore is not valid/consistent in vcl_backend_response?
+sub vcl_deliver {
     # ...
-    if (401 == beresp.status) {
-        if (ipstore.increment("" + client.ip) > 5) { # TODO: client.ip is not available in vcl_backend_response anymore
+    if (401 == resp.status) {
+        if (ipstore.increment("" + client.ip) > 5) {
             ipstore.expire("" + client.ip, 1h);
-            return(synth(403)); # TODO: not allowed in vcl_backend_response (current doc of varnish says the contrary)
+            return(synth(403));
         }
         ipstore.expire("" + client.ip, 1h);
     }
