@@ -13,14 +13,14 @@
 struct vmod_driver {
     unsigned magic;
 #define VMOD_STORE_OBJ_MAGIC 0x3366feff
-    vmod_key_store_driver *driver;
+    const vmod_key_store_driver *driver;
     void *private;
 };
 
 struct vmod_key_store_registered_driver {
     unsigned magic;
 #define REGISTERED_DRIVER_MAGIC 0x1166feff
-    vmod_key_store_driver *driver;
+    const vmod_key_store_driver *driver;
     VTAILQ_ENTRY(vmod_key_store_registered_driver) list;
 };
 
@@ -104,8 +104,8 @@ VCL_VOID vmod_driver__init(const struct vrt_ctx *ctx, struct vmod_driver **pp, c
     struct timeval tv;
     struct vmod_driver *p;
     char *ptr, *host, *pname, *pvalue;
-    vmod_key_store_driver *effective_driver;
     struct vmod_key_store_registered_driver *d;
+    const vmod_key_store_driver *effective_driver;
 
     CHECK_OBJ_NOTNULL(ctx, VRT_CTX_MAGIC);
     AN(pp);
