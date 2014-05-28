@@ -7,7 +7,7 @@
 
 * cmake
 * varnish >= 4 (including its sources)
-* hiredis for redis driver
+* [hiredis](https://github.com/redis/hiredis) for redis driver
 * [libmemcached](http://libmemcached.org) for memcached driver
 
 # How to build
@@ -81,7 +81,7 @@ sub vcl_init {
 }
 
 sub vcl_recv {
-    if (std.integer(ipstore.get("" + client.ip), 0) > 5) {
+    if (std.integer(ipstore.get("" + client.ip), 0) >= 5) {
         return(synth(403));
     }
     # ...
@@ -89,12 +89,12 @@ sub vcl_recv {
 
 sub vcl_deliver {
     # ...
-    if (401 == resp.status) {
-        if (ipstore.increment("" + client.ip) > 5) {
-            ipstore.expire("" + client.ip, 1h);
-            return(synth(403));
+    if (401 == resp.status && req.http.Authorization) {
+        if (ipstore.increment("" + client.ip) >= 5) {
+            ipstore.expire("" + client.ip, 4h); # ban for 4 hours
+        } else {
+            ipstore.expire("" + client.ip, 1h); # reset attempts count after 1h
         }
-        ipstore.expire("" + client.ip, 1h);
     }
     # ...
 }
