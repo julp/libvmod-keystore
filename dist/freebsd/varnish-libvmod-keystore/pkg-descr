@@ -1,0 +1,3 @@
+A Varnish module to interact with key/value store engines
+
+WWW: https://github.com/julp/libvmod-keystore
