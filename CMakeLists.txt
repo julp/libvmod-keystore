@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8.3)
 
 project(libvmod-keystore C)
 
-# cmake . -DVARNISHSRC:PATH=$HOME/Downloads/varnish-4.0.0-beta1/ -DWITH_REDIS:BOOL=OFF -DWITH_MEMCACHED:BOOL=OFF
+# cmake . -DVARNISHSRC:PATH=$HOME/Downloads/varnish-4.0.0/ -DWITH_REDIS:BOOL=OFF -DWITH_MEMCACHED:BOOL=OFF
 
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR})
 include(VarnishMOD)
@@ -47,7 +47,7 @@ endif(WITH_REDIS OR WITH_MEMCACHED)
 message("STATIC_DRIVERS = ${STATIC_DRIVERS}")
 
 set(KEYSTORE_SOURCES )
-list(APPEND KEYSTORE_SOURCES src/vmod_keystore.c)
+list(APPEND KEYSTORE_SOURCES ${PROJECT_SOURCE_DIR}/src/vmod_keystore.c)
 foreach(DRIVER_NAME ${STATIC_DRIVERS})
     list(APPEND KEYSTORE_SOURCES "\$<TARGET_OBJECTS:${DRIVER_NAME}>")
     string(TOUPPER ${DRIVER_NAME} DRIVER_UPPER_NAME)
@@ -57,7 +57,7 @@ get_directory_property(CURRENT_DEFINITIONS COMPILE_DEFINITIONS)
 declare_vmod(
     INSTALL
     NAME keystore
-    VCC src/vmod_keystore.vcc
+    VCC ${PROJECT_SOURCE_DIR}/src/vmod_keystore.vcc
     SOURCES ${KEYSTORE_SOURCES}
     ADDITIONNAL_LIBRARIES ${ADDITIONNAL_LIBRARIES}
 )

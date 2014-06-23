@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8.3)
 
 if(NOT DEFINED VARNISHSRC)
-    message(FATAL_ERROR "Add -DVARNISHSRC:PATH=/path/to/varnish/sources to your cmake command line or define it through its GUI (ccmake & co)")
+    message(WARNING "You may need to add -DVARNISHSRC:PATH=/path/to/varnish/sources to your cmake command line or define it through its GUI (ccmake & co)")
 endif(NOT DEFINED VARNISHSRC)
 
 find_package(PythonInterp REQUIRED)
@@ -39,7 +39,7 @@ macro(declare_vmod)
     # TODO: !empty(VMOD_NAME)
     file(APPEND config.h "")
     add_custom_command(
-        OUTPUT vcc_if.h vcc_if.c # TODO reprendre le path de VMOD_VCC ?
+        OUTPUT "${PROJECT_BINARY_DIR}/vcc_if.c" "${PROJECT_BINARY_DIR}/vcc_if.h"
         COMMAND ${PYTHON_EXECUTABLE} ${VARNISHAPI_VMODTOOL} ${VMOD_VCC}
         DEPENDS ${VMOD_VCC}
     )
@@ -49,15 +49,18 @@ macro(declare_vmod)
 #         DEPENDS vcc_if.h vcc_if.c
 #     )
 #     add_dependencies(${VMOD_NAME} "${VMOD_NAME}_vcc_if")
-    list(APPEND VMOD_SOURCES vcc_if.c)
-    list(APPEND VMOD_SOURCES vcc_if.h)
+    list(APPEND VMOD_SOURCES "${PROJECT_BINARY_DIR}/vcc_if.c")
+    list(APPEND VMOD_SOURCES "${PROJECT_BINARY_DIR}/vcc_if.h")
     add_library(${VMOD_NAME} SHARED ${VMOD_SOURCES})
     if(VMOD_ADDITIONNAL_LIBRARIES)
         target_link_libraries(${VMOD_NAME} ${VMOD_ADDITIONNAL_LIBRARIES})
     endif(VMOD_ADDITIONNAL_LIBRARIES)
     set(VMOD_INCLUDE_DIRECTORIES )
     list(APPEND VMOD_INCLUDE_DIRECTORIES ${PROJECT_SOURCE_DIR})
-    list(APPEND VMOD_INCLUDE_DIRECTORIES "${VARNISHSRC}/include")
+    list(APPEND VMOD_INCLUDE_DIRECTORIES ${PROJECT_BINARY_DIR})
+    if(DEFINED VARNISHSRC)
+        list(APPEND VMOD_INCLUDE_DIRECTORIES "${VARNISHSRC}/include")
+    endif(DEFINED VARNISHSRC)
     list(APPEND VMOD_INCLUDE_DIRECTORIES ${VARNISHAPI_VMODINCLUDEDIR})
     list(APPEND VMOD_INCLUDE_DIRECTORIES ${VMOD_ADDITIONNAL_INCLUDE_DIRECTORIES})
     set_target_properties(${VMOD_NAME} PROPERTIES INCLUDE_DIRECTORIES "${VMOD_INCLUDE_DIRECTORIES}" PREFIX "libvmod_")
