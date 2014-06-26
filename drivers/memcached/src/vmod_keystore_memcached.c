@@ -13,7 +13,7 @@ static void *vmod_key_store_memcached_open(const char *host, int port, struct ti
     memcached_st *c;
     memcached_return_t rc;
 
-    c = memcached_create(NULL);
+    c = memcached("--BINARY-PROTOCOL", STR_LEN("--BINARY-PROTOCOL"));
     if (-1 == port) {
         rc = memcached_server_add_unix_socket(c, host);
     } else {

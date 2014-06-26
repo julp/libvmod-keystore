@@ -15,6 +15,10 @@
 #  define debug(fmt, ...)
 # endif /* DEBUG */
 
+# define ARRAY_SIZE(array) (sizeof(array) / sizeof((array)[0]))
+# define STR_LEN(str) (ARRAY_SIZE(str) - 1)
+# define STR_SIZE(str) (ARRAY_SIZE(str))
+
 typedef struct {
     const char *name;
     void *(*open)(const char *host, int port, struct timeval timeout);
