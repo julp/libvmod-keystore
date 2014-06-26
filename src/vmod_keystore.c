@@ -6,10 +6,6 @@
 #include "vcc_if.h"
 #include "keystore_driver.h"
 
-#define ARRAY_SIZE(array) (sizeof(array) / sizeof((array)[0]))
-#define STR_LEN(str) (ARRAY_SIZE(str) - 1)
-#define STR_SIZE(str) (ARRAY_SIZE(str))
-
 struct vmod_driver {
     unsigned magic;
 #define VMOD_STORE_OBJ_MAGIC 0x3366feff
