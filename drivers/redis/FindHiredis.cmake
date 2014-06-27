@@ -82,7 +82,7 @@ endforeach(${HIREDIS_PRIVATE_VAR_NS}_VARNAME)
 find_path(
     ${HIREDIS_PUBLIC_VAR_NS}_INCLUDE_DIRS
     NAMES hiredis.h
-    PATH_SUFFIXES "include"
+    PATH_SUFFIXES "hiredis"
 )
 
 if(${HIREDIS_PUBLIC_VAR_NS}_INCLUDE_DIRS)
