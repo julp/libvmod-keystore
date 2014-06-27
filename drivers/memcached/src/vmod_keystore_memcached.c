@@ -8,7 +8,7 @@
 
 #include <memcached.h>
 
-static void *vmod_key_store_memcached_open(const char *host, int port, struct timeval tv)
+static void *vmod_keystore_memcached_open(const char *host, int port, struct timeval tv)
 {
     memcached_st *c;
     memcached_return_t rc;
@@ -30,12 +30,12 @@ static void *vmod_key_store_memcached_open(const char *host, int port, struct ti
     return c;
 }
 
-static void vmod_key_store_memcached_close(void *c)
+static void vmod_keystore_memcached_close(void *c)
 {
     memcached_free((memcached_st *) c);
 }
 
-static VCL_STRING vmod_key_store_memcached_get(struct ws *ws, void *c, VCL_STRING key)
+static VCL_STRING vmod_keystore_memcached_get(struct ws *ws, void *c, VCL_STRING key)
 {
     uint32_t flags;
     size_t ovalue_len;
@@ -66,18 +66,18 @@ static int _memcached_do_set_add_replace(
     return MEMCACHED_SUCCESS == rc;
 }
 
-static VCL_BOOL vmod_key_store_memcached_add(void *c, VCL_STRING key, VCL_STRING value)
+static VCL_BOOL vmod_keystore_memcached_add(void *c, VCL_STRING key, VCL_STRING value)
 {
     // TODO: retun FALSE if key already exists
     return _memcached_do_set_add_replace(memcached_add, c, key, value);
 }
 
-static VCL_VOID vmod_key_store_memcached_set(void *c, VCL_STRING key, VCL_STRING value)
+static VCL_VOID vmod_keystore_memcached_set(void *c, VCL_STRING key, VCL_STRING value)
 {
     _memcached_do_set_add_replace(memcached_set, c, key, value);
 }
 
-static VCL_BOOL vmod_key_store_memcached_exists(void *c, VCL_STRING key)
+static VCL_BOOL vmod_keystore_memcached_exists(void *c, VCL_STRING key)
 {
     memcached_return_t rc;
 
@@ -87,7 +87,7 @@ static VCL_BOOL vmod_key_store_memcached_exists(void *c, VCL_STRING key)
     return MEMCACHED_SUCCESS == rc;
 }
 
-static VCL_BOOL vmod_key_store_memcached_delete(void *c, VCL_STRING key)
+static VCL_BOOL vmod_keystore_memcached_delete(void *c, VCL_STRING key)
 {
     memcached_return_t rc;
 
@@ -99,7 +99,7 @@ static VCL_BOOL vmod_key_store_memcached_delete(void *c, VCL_STRING key)
     return MEMCACHED_SUCCESS == rc;
 }
 
-static VCL_VOID vmod_key_store_memcached_expire(void *c, VCL_STRING key, VCL_DURATION d)
+static VCL_VOID vmod_keystore_memcached_expire(void *c, VCL_STRING key, VCL_DURATION d)
 {
     memcached_return_t rc;
 
@@ -122,12 +122,12 @@ static int _memcached_do_in_de_crement(memcached_return_t (*fn)(memcached_st *, 
     return ovalue;
 }
 
-static VCL_INT vmod_key_store_memcached_increment(void *c, VCL_STRING key)
+static VCL_INT vmod_keystore_memcached_increment(void *c, VCL_STRING key)
 {
     return _memcached_do_in_de_crement(memcached_increment, c, key);
 }
 
-static VCL_INT vmod_key_store_memcached_decrement(void *c, VCL_STRING key)
+static VCL_INT vmod_keystore_memcached_decrement(void *c, VCL_STRING key)
 {
     return _memcached_do_in_de_crement(memcached_decrement, c, key);
 }
@@ -135,24 +135,24 @@ static VCL_INT vmod_key_store_memcached_decrement(void *c, VCL_STRING key)
 #ifdef MEMCACHED_SHARED_DRIVER
 static
 #endif /* MEMCACHED_SHARED_DRIVER */
-const vmod_key_store_driver memcached_driver = {
+const vmod_keystore_driver_imp memcached_driver = {
     "memcached",
-    vmod_key_store_memcached_open,
-    vmod_key_store_memcached_close,
-    vmod_key_store_memcached_get,
-    vmod_key_store_memcached_add,
-    vmod_key_store_memcached_set,
-    vmod_key_store_memcached_exists,
-    vmod_key_store_memcached_delete,
-    vmod_key_store_memcached_expire,
-    vmod_key_store_memcached_increment,
-    vmod_key_store_memcached_decrement
+    vmod_keystore_memcached_open,
+    vmod_keystore_memcached_close,
+    vmod_keystore_memcached_get,
+    vmod_keystore_memcached_add,
+    vmod_keystore_memcached_set,
+    vmod_keystore_memcached_exists,
+    vmod_keystore_memcached_delete,
+    vmod_keystore_memcached_expire,
+    vmod_keystore_memcached_increment,
+    vmod_keystore_memcached_decrement
 };
 
 #ifdef MEMCACHED_SHARED_DRIVER
 int init_function(struct vmod_priv *priv, const struct VCL_conf *cfg)
 {
-    vmod_key_store_register_driver(&memcached_driver);
+    vmod_keystore_register_driver(&memcached_driver);
 
     return 0;
 }

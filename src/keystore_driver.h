@@ -31,8 +31,8 @@ typedef struct {
     VCL_VOID (*expire)(void *, VCL_STRING, VCL_DURATION);
     VCL_INT (*increment)(void *, VCL_STRING);
     VCL_INT (*decrement)(void *, VCL_STRING);
-} vmod_key_store_driver;
+} vmod_keystore_driver_imp;
 
-void vmod_key_store_register_driver(const vmod_key_store_driver * const);
+void vmod_keystore_register_driver(const vmod_keystore_driver_imp * const);
 
 #endif /* !KEY_STORE_DRIVER_H */

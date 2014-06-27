@@ -12,12 +12,12 @@
 typedef struct {
     redisContext *c;
     pthread_mutex_t mtx;
-} vmod_key_store_redis_data_t;
+} vmod_keystore_redis_data_t;
 
-static void *vmod_key_store_redis_open(const char *host, int port, struct timeval tv)
+static void *vmod_keystore_redis_open(const char *host, int port, struct timeval tv)
 {
     int tv_set;
-    vmod_key_store_redis_data_t *d;
+    vmod_keystore_redis_data_t *d;
 
 #if 1
     d = malloc(sizeof(*d));
@@ -47,11 +47,11 @@ static void *vmod_key_store_redis_open(const char *host, int port, struct timeva
     return d;
 }
 
-static void vmod_key_store_redis_close(void *c)
+static void vmod_keystore_redis_close(void *c)
 {
-    vmod_key_store_redis_data_t *d;
+    vmod_keystore_redis_data_t *d;
 
-    d = (vmod_key_store_redis_data_t *) c;
+    d = (vmod_keystore_redis_data_t *) c;
 #if 1
     AN(d);
 #else
@@ -72,9 +72,9 @@ static int _redis_do_string_command(struct ws *ws, void *c, int *output_type, ch
     int ret;
     va_list ap;
     redisReply *r;
-    vmod_key_store_redis_data_t *d;
+    vmod_keystore_redis_data_t *d;
 
-    d = (vmod_key_store_redis_data_t *) c;
+    d = (vmod_keystore_redis_data_t *) c;
 #if 1
     AN(d);
 #else
@@ -117,7 +117,7 @@ static int _redis_do_string_command(struct ws *ws, void *c, int *output_type, ch
     return ret;
 }
 
-static VCL_STRING vmod_key_store_redis_get(struct ws *ws, void *c, VCL_STRING key)
+static VCL_STRING vmod_keystore_redis_get(struct ws *ws, void *c, VCL_STRING key)
 {
     char *ovalue;
     int ret, otype;
@@ -133,9 +133,9 @@ static int _redis_do_int_command(void *c, int *output_type, void *output_value, 
     int ret;
     va_list ap;
     redisReply *r;
-    vmod_key_store_redis_data_t *d;
+    vmod_keystore_redis_data_t *d;
 
-    d = (vmod_key_store_redis_data_t *) c;
+    d = (vmod_keystore_redis_data_t *) c;
 #if 1
     AN(d);
 #else
@@ -177,7 +177,7 @@ static int _redis_do_int_command(void *c, int *output_type, void *output_value, 
     return ret;
 }
 
-static VCL_BOOL vmod_key_store_redis_add(void *c, VCL_STRING key, VCL_STRING value)
+static VCL_BOOL vmod_keystore_redis_add(void *c, VCL_STRING key, VCL_STRING value)
 {
     int ret, otype, ovalue;
 
@@ -188,7 +188,7 @@ static VCL_BOOL vmod_key_store_redis_add(void *c, VCL_STRING key, VCL_STRING val
     return REDIS_REPLY_INTEGER == otype && 1 == ovalue;
 }
 
-static VCL_VOID vmod_key_store_redis_set(void *c, VCL_STRING key, VCL_STRING value)
+static VCL_VOID vmod_keystore_redis_set(void *c, VCL_STRING key, VCL_STRING value)
 {
     int ret, otype, ovalue;
 
@@ -197,7 +197,7 @@ static VCL_VOID vmod_key_store_redis_set(void *c, VCL_STRING key, VCL_STRING val
     AN(REDIS_REPLY_STATUS == otype && 1 == ovalue);
 }
 
-static VCL_BOOL vmod_key_store_redis_exists(void *c, VCL_STRING key)
+static VCL_BOOL vmod_keystore_redis_exists(void *c, VCL_STRING key)
 {
     int ret, otype, ovalue;
 
@@ -208,7 +208,7 @@ static VCL_BOOL vmod_key_store_redis_exists(void *c, VCL_STRING key)
     return ovalue;
 }
 
-static VCL_BOOL vmod_key_store_redis_delete(void *c, VCL_STRING key)
+static VCL_BOOL vmod_keystore_redis_delete(void *c, VCL_STRING key)
 {
     int ret, otype, ovalue;
 
@@ -218,7 +218,7 @@ static VCL_BOOL vmod_key_store_redis_delete(void *c, VCL_STRING key)
     return REDIS_REPLY_INTEGER == otype && 1 == ovalue;
 }
 
-static VCL_VOID vmod_key_store_redis_expire(void *c, VCL_STRING key, VCL_DURATION d)
+static VCL_VOID vmod_keystore_redis_expire(void *c, VCL_STRING key, VCL_DURATION d)
 {
     int ret, otype, ovalue;
 
@@ -228,7 +228,7 @@ static VCL_VOID vmod_key_store_redis_expire(void *c, VCL_STRING key, VCL_DURATIO
 //     return REDIS_REPLY_INTEGER == otype && 1 == ovalue;
 }
 
-static VCL_INT vmod_key_store_redis_increment(void *c, VCL_STRING key)
+static VCL_INT vmod_keystore_redis_increment(void *c, VCL_STRING key)
 {
     int ret, otype, ovalue;
 
@@ -239,7 +239,7 @@ static VCL_INT vmod_key_store_redis_increment(void *c, VCL_STRING key)
     return ovalue;
 }
 
-static VCL_INT vmod_key_store_redis_decrement(void *c, VCL_STRING key)
+static VCL_INT vmod_keystore_redis_decrement(void *c, VCL_STRING key)
 {
     int ret, otype, ovalue;
 
@@ -253,24 +253,24 @@ static VCL_INT vmod_key_store_redis_decrement(void *c, VCL_STRING key)
 #ifdef REDIS_SHARED_DRIVER
 static
 #endif /* REDIS_SHARED_DRIVER */
-const vmod_key_store_driver redis_driver = {
+const vmod_keystore_driver_imp redis_driver = {
     "redis",
-    vmod_key_store_redis_open,
-    vmod_key_store_redis_close,
-    vmod_key_store_redis_get,
-    vmod_key_store_redis_add,
-    vmod_key_store_redis_set,
-    vmod_key_store_redis_exists,
-    vmod_key_store_redis_delete,
-    vmod_key_store_redis_expire,
-    vmod_key_store_redis_increment,
-    vmod_key_store_redis_decrement
+    vmod_keystore_redis_open,
+    vmod_keystore_redis_close,
+    vmod_keystore_redis_get,
+    vmod_keystore_redis_add,
+    vmod_keystore_redis_set,
+    vmod_keystore_redis_exists,
+    vmod_keystore_redis_delete,
+    vmod_keystore_redis_expire,
+    vmod_keystore_redis_increment,
+    vmod_keystore_redis_decrement
 };
 
 #ifdef REDIS_SHARED_DRIVER
 int init_function(struct vmod_priv *priv, const struct VCL_conf *cfg)
 {
-    vmod_key_store_register_driver(&redis_driver);
+    vmod_keystore_register_driver(&redis_driver);
 
     return 0;
 }
