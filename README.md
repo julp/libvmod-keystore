@@ -61,12 +61,6 @@ new <variable name> = keystore.driver('<driver name>:host=<IP address or hostnam
 * `INT increment(STRING key)`: return value associated to *key* after incrementing it (of 1)
 * `INT decrement(STRING key)`: return value associated to *key* after decrementing it (of 1)
 
-# Limitations
-
-* varnish is strongly typed: methods are planned to get/return a given type, nothing else
-* varnish has no iterator and/or a kind of foreach construct to work on non-scalar type (like arrays, sets, etc)
-* varnish has no null or nil value
-
 # Examples
 
 ## Prevent brute-force on http authentication
