@@ -60,6 +60,7 @@ new <variable name> = keystore.driver('<driver name>:host=<IP address or hostnam
 * `VOID expire(STRING key, DURATION ttl)`: set expiration of the given *key* (keys are inserted as persitent with 0 as TTL ; use 30s as value of *ttl*, for the *key* to expire in 30 seconds)
 * `INT increment(STRING key)`: return value associated to *key* after incrementing it (of 1)
 * `INT decrement(STRING key)`: return value associated to *key* after decrementing it (of 1)
+* `STRING name()` : return current driver name
 
 # Examples
 
