@@ -93,7 +93,7 @@ static int strcmp_l(
     return str1_len - str2_len;
 }
 
-VCL_VOID vmod_keystore_driver__init(const struct vrt_ctx *ctx, struct vmod_keystore_driver **pp, const char *vcl_name, VCL_STRING dsn)
+VCL_VOID vmod_driver__init(const struct vrt_ctx *ctx, struct vmod_keystore_driver **pp, const char *vcl_name, VCL_STRING dsn)
 {
     int port;
     void *conn;
@@ -166,7 +166,7 @@ VCL_VOID vmod_keystore_driver__init(const struct vrt_ctx *ctx, struct vmod_keyst
     AN(*pp);
 }
 
-VCL_VOID vmod_keystore_driver__fini(struct vmod_keystore_driver **pp)
+VCL_VOID vmod_driver__fini(struct vmod_keystore_driver **pp)
 {
     struct vmod_keystore_driver *p;
 
@@ -179,7 +179,7 @@ VCL_VOID vmod_keystore_driver__fini(struct vmod_keystore_driver **pp)
     *pp = NULL;
 }
 
-VCL_STRING vmod_keystore_driver_get(const struct vrt_ctx *ctx, struct vmod_keystore_driver *p, VCL_STRING key)
+VCL_STRING vmod_driver_get(const struct vrt_ctx *ctx, struct vmod_keystore_driver *p, VCL_STRING key)
 {
     CHECK_OBJ_NOTNULL(ctx, VRT_CTX_MAGIC);
     CHECK_OBJ_NOTNULL(p, VMOD_STORE_OBJ_MAGIC);
@@ -188,7 +188,7 @@ VCL_STRING vmod_keystore_driver_get(const struct vrt_ctx *ctx, struct vmod_keyst
     return p->driver->get(ctx->ws, p->private, key);
 }
 
-VCL_BOOL vmod_keystore_driver_add(const struct vrt_ctx *ctx, struct vmod_keystore_driver *p, VCL_STRING key, VCL_STRING value)
+VCL_BOOL vmod_driver_add(const struct vrt_ctx *ctx, struct vmod_keystore_driver *p, VCL_STRING key, VCL_STRING value)
 {
     CHECK_OBJ_NOTNULL(ctx, VRT_CTX_MAGIC);
     CHECK_OBJ_NOTNULL(p, VMOD_STORE_OBJ_MAGIC);
@@ -197,7 +197,7 @@ VCL_BOOL vmod_keystore_driver_add(const struct vrt_ctx *ctx, struct vmod_keystor
     return p->driver->add(p->private, key, value);
 }
 
-VCL_VOID vmod_keystore_driver_set(const struct vrt_ctx *ctx, struct vmod_keystore_driver *p, VCL_STRING key, VCL_STRING value)
+VCL_VOID vmod_driver_set(const struct vrt_ctx *ctx, struct vmod_keystore_driver *p, VCL_STRING key, VCL_STRING value)
 {
     CHECK_OBJ_NOTNULL(ctx, VRT_CTX_MAGIC);
     CHECK_OBJ_NOTNULL(p, VMOD_STORE_OBJ_MAGIC);
@@ -206,7 +206,7 @@ VCL_VOID vmod_keystore_driver_set(const struct vrt_ctx *ctx, struct vmod_keystor
     return p->driver->set(p->private, key, value);
 }
 
-VCL_BOOL vmod_keystore_driver_exists(const struct vrt_ctx *ctx, struct vmod_keystore_driver *p, VCL_STRING key)
+VCL_BOOL vmod_driver_exists(const struct vrt_ctx *ctx, struct vmod_keystore_driver *p, VCL_STRING key)
 {
     CHECK_OBJ_NOTNULL(ctx, VRT_CTX_MAGIC);
     CHECK_OBJ_NOTNULL(p, VMOD_STORE_OBJ_MAGIC);
@@ -215,7 +215,7 @@ VCL_BOOL vmod_keystore_driver_exists(const struct vrt_ctx *ctx, struct vmod_keys
     return p->driver->exists(p->private, key);
 }
 
-VCL_BOOL vmod_keystore_driver_delete(const struct vrt_ctx *ctx, struct vmod_keystore_driver *p, VCL_STRING key)
+VCL_BOOL vmod_driver_delete(const struct vrt_ctx *ctx, struct vmod_keystore_driver *p, VCL_STRING key)
 {
     CHECK_OBJ_NOTNULL(ctx, VRT_CTX_MAGIC);
     CHECK_OBJ_NOTNULL(p, VMOD_STORE_OBJ_MAGIC);
@@ -224,7 +224,7 @@ VCL_BOOL vmod_keystore_driver_delete(const struct vrt_ctx *ctx, struct vmod_keys
     return p->driver->delete(p->private, key);
 }
 
-VCL_VOID vmod_keystore_driver_expire(const struct vrt_ctx *ctx, struct vmod_keystore_driver *p, VCL_STRING key, VCL_DURATION duration)
+VCL_VOID vmod_driver_expire(const struct vrt_ctx *ctx, struct vmod_keystore_driver *p, VCL_STRING key, VCL_DURATION duration)
 {
     CHECK_OBJ_NOTNULL(ctx, VRT_CTX_MAGIC);
     CHECK_OBJ_NOTNULL(p, VMOD_STORE_OBJ_MAGIC);
@@ -233,7 +233,7 @@ VCL_VOID vmod_keystore_driver_expire(const struct vrt_ctx *ctx, struct vmod_keys
     p->driver->expire(p->private, key, duration);
 }
 
-VCL_INT vmod_keystore_driver_increment(const struct vrt_ctx *ctx, struct vmod_keystore_driver *p, VCL_STRING key)
+VCL_INT vmod_driver_increment(const struct vrt_ctx *ctx, struct vmod_keystore_driver *p, VCL_STRING key)
 {
     CHECK_OBJ_NOTNULL(ctx, VRT_CTX_MAGIC);
     CHECK_OBJ_NOTNULL(p, VMOD_STORE_OBJ_MAGIC);
@@ -242,13 +242,21 @@ VCL_INT vmod_keystore_driver_increment(const struct vrt_ctx *ctx, struct vmod_ke
     return p->driver->increment(p->private, key);
 }
 
-VCL_INT vmod_keystore_driver_decrement(const struct vrt_ctx *ctx, struct vmod_keystore_driver *p, VCL_STRING key)
+VCL_INT vmod_driver_decrement(const struct vrt_ctx *ctx, struct vmod_keystore_driver *p, VCL_STRING key)
 {
     CHECK_OBJ_NOTNULL(ctx, VRT_CTX_MAGIC);
     CHECK_OBJ_NOTNULL(p, VMOD_STORE_OBJ_MAGIC);
     AN(p->driver->decrement);
 
     return p->driver->decrement(p->private, key);
+}
+
+VCL_STRING vmod_driver_name(const struct vrt_ctx *ctx, struct vmod_keystore_driver *p)
+{
+    CHECK_OBJ_NOTNULL(ctx, VRT_CTX_MAGIC);
+    CHECK_OBJ_NOTNULL(p, VMOD_STORE_OBJ_MAGIC);
+
+    return p->driver->name;
 }
 
 int init_function(struct vmod_priv *priv, const struct VCL_conf *cfg)

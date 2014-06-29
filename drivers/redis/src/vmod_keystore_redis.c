@@ -9,62 +9,68 @@
 
 #include <hiredis.h>
 
-typedef struct {
-    redisContext *c;
-    pthread_mutex_t mtx;
-} vmod_keystore_redis_data_t;
+struct vmod_keystore_redis_data_t {
+    unsigned magic;
+#define REDIS_MAGIC 0x0066feff
+    int port;
+    char *host;
+    struct timeval tv;
+};
+
+static pthread_key_t key;
+static pthread_once_t key_once = PTHREAD_ONCE_INIT;
+
+static void make_key(void)
+{
+    pthread_key_create(&key, (void (*)(void *)) redisFree);
+}
 
 static void *vmod_keystore_redis_open(const char *host, int port, struct timeval tv)
 {
-    int tv_set;
-    vmod_keystore_redis_data_t *d;
+    struct vmod_keystore_redis_data_t *d;
 
-#if 1
-    d = malloc(sizeof(*d));
-    XXXAN(d);
-#else
-    ALLOC_OBJ(d, X_MAGIC);
-#endif
-    AZ(pthread_mutex_init(&d->mtx, NULL));
-    tv_set = 0 != tv.tv_sec && 0 != tv.tv_usec;
-    if (-1 == port) {
-        if (tv_set) {
-            d->c = redisConnectUnixWithTimeout(host, tv);
-        } else {
-            d->c = redisConnectUnix(host);
-        }
-    } else {
-        if (tv_set) {
-            d->c = redisConnectWithTimeout(host, port, tv);
-        } else {
-            d->c = redisConnect(host, port);
-        }
-    }
-    if (NULL != d->c && d->c->err) {
-//         VSLb(ctx->vsl, SLT_Error, "redis connection error: %s", c->errstr);
-    }
+    ALLOC_OBJ(d, REDIS_MAGIC);
+    AN(d);
+    d->port = port;
+    d->host = strdup(host);
+    d->tv = tv;
 
     return d;
 }
 
 static void vmod_keystore_redis_close(void *c)
 {
-    vmod_keystore_redis_data_t *d;
+    struct vmod_keystore_redis_data_t *d;
 
-    d = (vmod_keystore_redis_data_t *) c;
-#if 1
-    AN(d);
-#else
-    CHECK_OBJ_NOTNULL(d, X_MAGIC);
-#endif
-    AN(d->c);
-    AZ(pthread_mutex_destroy(&d->mtx));
-    redisFree((redisContext *) d->c);
-#if 1
-    free(c);
-#else
-    FREE_OBJ(c);
-#endif
+    d = (struct vmod_keystore_redis_data_t *) c;
+    CHECK_OBJ_NOTNULL(d, REDIS_MAGIC);
+//     AN(d->host);
+    free(d->host);
+    FREE_OBJ(d);
+}
+
+static redisContext *_redis_do_connect(struct vmod_keystore_redis_data_t *d)
+{
+    int tv_set;
+
+    /* caller is responsible of CHECK_OBJ_NOTNULL(d, REDIS_MAGIC) */
+    tv_set = 0 != d->tv.tv_sec && 0 != d->tv.tv_usec;
+    if (-1 == d->port) {
+        if (tv_set) {
+            return redisConnectUnixWithTimeout(d->host, d->tv);
+        } else {
+            return redisConnectUnix(d->host);
+        }
+    } else {
+        if (tv_set) {
+            return redisConnectWithTimeout(d->host, d->port, d->tv);
+        } else {
+            return redisConnect(d->host, d->port);
+        }
+    }
+//     if (NULL != d->c && d->c->err) {
+// //         VSLb(ctx->vsl, SLT_Error, "redis connection error: %s", c->errstr);
+//     }
 }
 
 static int _redis_do_string_command(struct ws *ws, void *c, int *output_type, char **output_value, const char *command, ...)
@@ -72,22 +78,22 @@ static int _redis_do_string_command(struct ws *ws, void *c, int *output_type, ch
     int ret;
     va_list ap;
     redisReply *r;
-    vmod_keystore_redis_data_t *d;
+    redisContext *ctxt;
+    struct vmod_keystore_redis_data_t *d;
 
-    d = (vmod_keystore_redis_data_t *) c;
-#if 1
-    AN(d);
-#else
-    CHECK_OBJ_NOTNULL(d, X_MAGIC);
-#endif
-    AN(d->c);
+    d = (struct vmod_keystore_redis_data_t *) c;
+    CHECK_OBJ_NOTNULL(d, REDIS_MAGIC);
     ret = 1;
     va_start(ap, command);
-    AZ(pthread_mutex_lock(&d->mtx));
-//     r = redisvCommand((redisContext *) d->c, command, ap);
-    redisvAppendCommand((redisContext *) d->c, command, ap);
+    if (NULL == (ctxt = (redisContext *) pthread_getspecific(key))) {
+        ctxt = _redis_do_connect(d);
+        AN(ctxt);
+        pthread_setspecific(key, ctxt);
+    }
+//     r = redisvCommand(ctxt, command, ap);
+    redisvAppendCommand(ctxt, command, ap);
     va_end(ap);
-    if (REDIS_OK == redisGetReply((redisContext *) d->c, (void **) &r)) {
+    if (REDIS_OK == redisGetReply(ctxt, (void **) &r)) {
         AN(r);
         switch (*output_type = r->type) {
             case REDIS_REPLY_NIL:
@@ -111,7 +117,6 @@ static int _redis_do_string_command(struct ws *ws, void *c, int *output_type, ch
         ret = 0;
         *output_value = NULL;
     }
-    AZ(pthread_mutex_unlock(&d->mtx));
     freeReplyObject(r);
 
     return ret;
@@ -133,22 +138,22 @@ static int _redis_do_int_command(void *c, int *output_type, void *output_value, 
     int ret;
     va_list ap;
     redisReply *r;
-    vmod_keystore_redis_data_t *d;
+    redisContext *ctxt;
+    struct vmod_keystore_redis_data_t *d;
 
-    d = (vmod_keystore_redis_data_t *) c;
-#if 1
-    AN(d);
-#else
-    CHECK_OBJ_NOTNULL(d, X_MAGIC);
-#endif
-    AN(d->c);
+    d = (struct vmod_keystore_redis_data_t *) c;
+    CHECK_OBJ_NOTNULL(d, REDIS_MAGIC);
     ret = 1;
-    AZ(pthread_mutex_lock(&d->mtx));
     va_start(ap, command);
-//     r = redisvCommand((redisContext *) d->c, command, ap);
-    redisvAppendCommand((redisContext *) d->c, command, ap);
+    if (NULL == (ctxt = (redisContext *) pthread_getspecific(key))) {
+        ctxt = _redis_do_connect(d);
+        AN(ctxt);
+        pthread_setspecific(key, ctxt);
+    }
+//     r = redisvCommand(ctxt, command, ap);
+    redisvAppendCommand(ctxt, command, ap);
     va_end(ap);
-    if (REDIS_OK == redisGetReply((redisContext *) d->c, (void **) &r)) {
+    if (REDIS_OK == redisGetReply(ctxt, (void **) &r)) {
         AN(r);
         switch (*output_type = r->type) {
             case REDIS_REPLY_NIL:
@@ -171,7 +176,6 @@ static int _redis_do_int_command(void *c, int *output_type, void *output_value, 
         ret = 0;
         output_value = NULL;
     }
-    AZ(pthread_mutex_unlock(&d->mtx));
     freeReplyObject(r);
 
     return ret;
@@ -270,6 +274,7 @@ const vmod_keystore_driver_imp redis_driver = {
 #ifdef REDIS_SHARED_DRIVER
 int init_function(struct vmod_priv *priv, const struct VCL_conf *cfg)
 {
+    pthread_once(&key_once, make_key);
     vmod_keystore_register_driver(&redis_driver);
 
     return 0;
