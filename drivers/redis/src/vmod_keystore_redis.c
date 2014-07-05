@@ -254,6 +254,17 @@ static VCL_INT vmod_keystore_redis_decrement(void *c, VCL_STRING key)
     return ovalue;
 }
 
+static VCL_STRING vmod_keystore_redis_raw(struct ws *ws, void *c, VCL_STRING cmd)
+{
+    char *ovalue;
+    int ret, otype;
+
+    ret = _redis_do_string_command(ws, c, &otype, &ovalue, cmd);
+    AN(ret);
+
+    return ovalue;
+}
+
 #ifdef REDIS_SHARED_DRIVER
 static
 #endif /* REDIS_SHARED_DRIVER */
@@ -268,7 +279,8 @@ const vmod_keystore_driver_imp redis_driver = {
     vmod_keystore_redis_delete,
     vmod_keystore_redis_expire,
     vmod_keystore_redis_increment,
-    vmod_keystore_redis_decrement
+    vmod_keystore_redis_decrement,
+    vmod_keystore_redis_raw
 };
 
 #ifdef REDIS_SHARED_DRIVER

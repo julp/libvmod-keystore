@@ -61,6 +61,7 @@ new <variable name> = keystore.driver('<driver name>:host=<IP address or hostnam
 * `INT increment(STRING key)`: return value associated to *key* after incrementing it (of 1)
 * `INT decrement(STRING key)`: return value associated to *key* after decrementing it (of 1)
 * `STRING name()` : return current driver name
+* `STRING raw(STRING command)` : execute an arbtrary *command* (redis only)
 
 # Examples
 

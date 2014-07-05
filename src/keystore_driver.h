@@ -23,7 +23,7 @@ typedef struct {
     const char *name;
     void *(*open)(const char *host, int port, struct timeval timeout);
     void (*close)(void *);
-    VCL_STRING (*get)(struct ws *ws, void *, VCL_STRING);
+    VCL_STRING (*get)(struct ws *, void *, VCL_STRING);
     VCL_BOOL (*add)(void *, VCL_STRING, VCL_STRING);
     VCL_VOID (*set)(void *, VCL_STRING, VCL_STRING);
     VCL_BOOL (*exists)(void *, VCL_STRING);
@@ -31,6 +31,7 @@ typedef struct {
     VCL_VOID (*expire)(void *, VCL_STRING, VCL_DURATION);
     VCL_INT (*increment)(void *, VCL_STRING);
     VCL_INT (*decrement)(void *, VCL_STRING);
+    VCL_STRING (*raw)(struct ws *, void *, VCL_STRING);
 } vmod_keystore_driver_imp;
 
 void vmod_keystore_register_driver(const vmod_keystore_driver_imp * const);

@@ -146,7 +146,8 @@ const vmod_keystore_driver_imp memcached_driver = {
     vmod_keystore_memcached_delete,
     vmod_keystore_memcached_expire,
     vmod_keystore_memcached_increment,
-    vmod_keystore_memcached_decrement
+    vmod_keystore_memcached_decrement,
+    NULL
 };
 
 #ifdef MEMCACHED_SHARED_DRIVER

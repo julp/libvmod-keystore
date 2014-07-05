@@ -259,6 +259,18 @@ VCL_STRING vmod_driver_name(const struct vrt_ctx *ctx, struct vmod_keystore_driv
     return p->driver->name;
 }
 
+VCL_STRING vmod_driver_raw(const struct vrt_ctx *ctx, struct vmod_keystore_driver *p, VCL_STRING cmd)
+{
+    CHECK_OBJ_NOTNULL(ctx, VRT_CTX_MAGIC);
+    CHECK_OBJ_NOTNULL(p, VMOD_STORE_OBJ_MAGIC);
+
+    if (NULL == p->driver->raw) {
+        return NULL;
+    } else {
+        return p->driver->raw(ctx->ws, p->private, cmd);
+    }
+}
+
 int init_function(struct vmod_priv *priv, const struct VCL_conf *cfg)
 {
 #if 0
