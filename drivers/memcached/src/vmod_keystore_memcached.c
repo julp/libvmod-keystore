@@ -108,13 +108,13 @@ static VCL_VOID vmod_keystore_memcached_expire(void *c, VCL_STRING key, VCL_DURA
 //     return MEMCACHED_SUCCESS == rc;
 }
 
-static int _memcached_do_in_de_crement(memcached_return_t (*fn)(memcached_st *, const char *, size_t, uint32_t, uint64_t *), void *c, VCL_STRING key)
+static int _memcached_do_in_de_crement(memcached_return_t (*fn)(memcached_st *, const char *, size_t, uint64_t, uint64_t, time_t, uint64_t *), void *c, VCL_STRING key)
 {
     uint64_t ovalue;
     memcached_return_t rc;
 
     ovalue = 0;
-    rc = fn((memcached_st *) c, key, strlen(key), 1, &ovalue);
+    rc = fn((memcached_st *) c, key, strlen(key), 1, 0, 0, &ovalue);
     if (MEMCACHED_SUCCESS != rc) {
         // VSLb(ctx->vsl, SLT_Error, "memcached error: %s", memcached_strerror((memcached_st *) c, rc));
     }
@@ -124,12 +124,12 @@ static int _memcached_do_in_de_crement(memcached_return_t (*fn)(memcached_st *, 
 
 static VCL_INT vmod_keystore_memcached_increment(void *c, VCL_STRING key)
 {
-    return _memcached_do_in_de_crement(memcached_increment, c, key);
+    return _memcached_do_in_de_crement(memcached_increment_with_initial, c, key);
 }
 
 static VCL_INT vmod_keystore_memcached_decrement(void *c, VCL_STRING key)
 {
-    return _memcached_do_in_de_crement(memcached_decrement, c, key);
+    return _memcached_do_in_de_crement(memcached_decrement_with_initial, c, key);
 }
 
 #ifdef MEMCACHED_SHARED_DRIVER
