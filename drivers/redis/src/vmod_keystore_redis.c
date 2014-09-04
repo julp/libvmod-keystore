@@ -212,14 +212,14 @@ static VCL_BOOL vmod_keystore_redis_exists(void *c, VCL_STRING key)
     return ovalue;
 }
 
-static VCL_BOOL vmod_keystore_redis_delete(void *c, VCL_STRING key)
+static VCL_VOID vmod_keystore_redis_delete(void *c, VCL_STRING key)
 {
     int ret, otype, ovalue;
 
     ret = _redis_do_int_command(c, &otype, &ovalue, "DEL %s", key);
     AN(ret);
 
-    return REDIS_REPLY_INTEGER == otype && 1 == ovalue;
+//     return REDIS_REPLY_INTEGER == otype && 1 == ovalue;
 }
 
 static VCL_VOID vmod_keystore_redis_expire(void *c, VCL_STRING key, VCL_DURATION d)

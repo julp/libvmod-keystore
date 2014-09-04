@@ -215,13 +215,13 @@ VCL_BOOL vmod_driver_exists(const struct vrt_ctx *ctx, struct vmod_keystore_driv
     return p->driver->exists(p->private, key);
 }
 
-VCL_BOOL vmod_driver_delete(const struct vrt_ctx *ctx, struct vmod_keystore_driver *p, VCL_STRING key)
+VCL_VOID vmod_driver_delete(const struct vrt_ctx *ctx, struct vmod_keystore_driver *p, VCL_STRING key)
 {
     CHECK_OBJ_NOTNULL(ctx, VRT_CTX_MAGIC);
     CHECK_OBJ_NOTNULL(p, VMOD_STORE_OBJ_MAGIC);
     AN(p->driver->delete);
 
-    return p->driver->delete(p->private, key);
+    p->driver->delete(p->private, key);
 }
 
 VCL_VOID vmod_driver_expire(const struct vrt_ctx *ctx, struct vmod_keystore_driver *p, VCL_STRING key, VCL_DURATION duration)

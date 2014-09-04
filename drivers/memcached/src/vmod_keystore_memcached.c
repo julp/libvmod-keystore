@@ -87,7 +87,7 @@ static VCL_BOOL vmod_keystore_memcached_exists(void *c, VCL_STRING key)
     return MEMCACHED_SUCCESS == rc;
 }
 
-static VCL_BOOL vmod_keystore_memcached_delete(void *c, VCL_STRING key)
+static VCL_VOID vmod_keystore_memcached_delete(void *c, VCL_STRING key)
 {
     memcached_return_t rc;
 
@@ -96,7 +96,7 @@ static VCL_BOOL vmod_keystore_memcached_delete(void *c, VCL_STRING key)
         // VSLb(ctx->vsl, SLT_Error, "memcached error: %s", memcached_strerror((memcached_st *) c, rc));
     }
 
-    return MEMCACHED_SUCCESS == rc;
+//     return MEMCACHED_SUCCESS == rc;
 }
 
 static VCL_VOID vmod_keystore_memcached_expire(void *c, VCL_STRING key, VCL_DURATION d)

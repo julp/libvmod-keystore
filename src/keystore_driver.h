@@ -27,7 +27,7 @@ typedef struct {
     VCL_BOOL (*add)(void *, VCL_STRING, VCL_STRING);
     VCL_VOID (*set)(void *, VCL_STRING, VCL_STRING);
     VCL_BOOL (*exists)(void *, VCL_STRING);
-    VCL_BOOL (*delete)(void *, VCL_STRING);
+    VCL_VOID (*delete)(void *, VCL_STRING);
     VCL_VOID (*expire)(void *, VCL_STRING, VCL_DURATION);
     VCL_INT (*increment)(void *, VCL_STRING);
     VCL_INT (*decrement)(void *, VCL_STRING);
