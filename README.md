@@ -46,7 +46,7 @@ import keystore_redis; # add this line AFTER keystore
 
 # VMod methods
 
-Instanciate a connection to your backend:
+Instanciate a connection to your database:
 
 ```
 new <variable name> = keystore.driver('<driver name>:host=<IP address or hostname or path to socket>;port=<port>;timeout=<timeout>');
@@ -77,7 +77,7 @@ sub vcl_init {
 }
 
 sub vcl_recv {
-    if (std.integer(ipstore.get("" + client.ip), 0) >= 5) {
+    if (std.integer(ipstore.get("" + client.identity), 0) >= 5) {
         return(synth(403));
     }
     # ...
@@ -86,10 +86,11 @@ sub vcl_recv {
 sub vcl_deliver {
     # ...
     if (401 == resp.status && req.http.Authorization) {
-        if (ipstore.increment("" + client.ip) >= 5) {
-            ipstore.expire("" + client.ip, 4h); # ban for 4 hours
+        if (ipstore.increment("" + client.identity) >= 5) {
+            ipstore.expire("" + client.identity, 4h); # ban for 4 hours
+            return(synth(429)); # return synth in vcl_deliver requires Varnish >= 4.0.2
         } else {
-            ipstore.expire("" + client.ip, 1h); # reset attempts count after 1h
+            ipstore.expire("" + client.identity, 1h); # reset attempts count after 1h
         }
     }
     # ...

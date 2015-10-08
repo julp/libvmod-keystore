@@ -5,7 +5,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR} ${PROJECT_SOURCE_DIR} ${REAL_P
 find_package(libMemcached REQUIRED)
 
 if(PROJECT_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
-    include(VarnishMOD)
+    find_package(VarnishAPI)
 
     add_definitions(-DMEMCACHED_SHARED_DRIVER=1)
     get_filename_component(REAL_PROJECT_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../src" REALPATH)

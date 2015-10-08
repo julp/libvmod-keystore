@@ -4,7 +4,9 @@
 
 #include "vrt.h"
 #include "cache/cache.h"
-#include "vcc_if.h"
+#ifdef REDIS_SHARED_DRIVER
+# include "vcc_if.h"
+#endif /* REDIS_SHARED_DRIVER */
 #include "keystore_driver.h"
 
 #include <hiredis.h>

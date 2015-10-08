@@ -3,7 +3,9 @@
 
 #include "vrt.h"
 #include "cache/cache.h"
-#include "vcc_if.h"
+#ifdef MEMCACHED_SHARED_DRIVER
+# include "vcc_if.h"
+#endif /* MEMCACHED_SHARED_DRIVER */
 #include "keystore_driver.h"
 
 #include <memcached.h>
