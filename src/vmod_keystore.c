@@ -109,6 +109,7 @@ VCL_VOID vmod_driver__init(const struct vrt_ctx *ctx, struct vmod_keystore_drive
 
     port = -1;
     host = NULL;
+    effective_driver = NULL;
     memset(&tv, 0, sizeof(tv));
     if (NULL == (ptr = strchr(dsn, ':'))) {
         VSLb(ctx->vsl, SLT_Error, "no driver name found");
