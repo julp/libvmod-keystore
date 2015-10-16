@@ -5,8 +5,8 @@
 
 # Prerequisites
 
-* cmake
-* varnish >= 4 (including its sources)
+* cmake >= 2.8.3
+* varnish >= 4.0
 * [hiredis](https://github.com/redis/hiredis) for redis driver
 * [libmemcached](http://libmemcached.org) for memcached driver
 
@@ -15,8 +15,8 @@
 ## With embedded drivers (statically linked)
 
 ```
-cd /path/to/vmod_keystore
-cmake . -DVARNISHSRC:PATH=/path/to/varnish/sources
+cd /path/to/libvmod-keystore
+cmake .
 ```
 (if hiredis is found, redis driver will automatically be enabled ; same thing with libmemcached for memcached driver)
 
@@ -29,13 +29,13 @@ import keystore;
 
 First build vmod_keystore alone:
 ```
-cd /path/to/vmod_keystore
-cmake . -DVARNISHSRC:PATH=/path/to/varnish/sources -DWITH_REDIS:BOOL=OFF -DWITH_MEMCACHED:BOOL=OFF
+cd /path/to/libvmod-keystore
+cmake . -DWITH_REDIS:BOOL=OFF -DWITH_MEMCACHED:BOOL=OFF
 ```
 Then build your driver(s). Example for redis:
 ```
-cd /path/to/vmod_keystore/drivers/redis
-cmake . -DVARNISHSRC:PATH=/path/to/varnish/sources
+cd /path/to/libvmod-keystore/drivers/redis
+cmake .
 ```
 
 To load redis driver, your varnish configuration should be similar to:
@@ -49,7 +49,7 @@ import keystore_redis; # add this line AFTER keystore
 Instanciate a connection to your database:
 
 ```
-new <variable name> = keystore.driver('<driver name>:host=<IP address or hostname or path to socket>;port=<port>;timeout=<timeout>');
+new <variable name> = keystore.driver("<driver name>:host=<IP address or hostname or path to socket>;port=<port>;timeout=<timeout>");
 ```
 
 * `STRING get(STRING key)`: fetch current value associated to *key*
