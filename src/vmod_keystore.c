@@ -122,7 +122,7 @@ VCL_VOID vmod_driver__init(const struct vrt_ctx *ctx, struct vmod_keystore_drive
         }
     }
     if (NULL == effective_driver) {
-        VSLb(ctx->vsl, SLT_Error, "driver '%.*s' not found", ptr - dsn, dsn);
+        VSLb(ctx->vsl, SLT_Error, "driver '%.*s' not found", (int) (ptr - dsn), dsn);
     }
     XXXAN(effective_driver);
     ++ptr; /* move after ':' */
