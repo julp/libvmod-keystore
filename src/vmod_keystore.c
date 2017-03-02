@@ -281,12 +281,12 @@ int init_function(struct vmod_priv *priv, const struct VCL_conf *cfg)
 #ifdef REDIS_STATIC_DRIVER
     extern const vmod_keystore_driver_imp redis_driver;
 
-    vmod_key_store_register_driver(&redis_driver);
+    vmod_keystore_register_driver(&redis_driver);
 #endif /* REDIS_STATIC_DRIVER */
 #ifdef MEMCACHED_STATIC_DRIVER
     extern const vmod_keystore_driver_imp memcached_driver;
 
-    vmod_key_store_register_driver(&memcached_driver);
+    vmod_keystore_register_driver(&memcached_driver);
 #endif /* MEMCACHED_STATIC_DRIVER */
 
     return 0;
