@@ -37,11 +37,11 @@ if(WITH_REDIS OR WITH_MEMCACHED)
     add_subdirectory(drivers)
 endif(WITH_REDIS OR WITH_MEMCACHED)
 
-# configure_file(
-#     "config.h.in"
-#     "config.h"
-#     @ONLY
-# )
+configure_file(
+    "config.h.in"
+    "config.h"
+    @ONLY
+)
 
 message("STATIC_DRIVERS = ${STATIC_DRIVERS}")
 
